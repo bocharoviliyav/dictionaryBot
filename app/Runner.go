@@ -56,21 +56,21 @@ func Run() {
 
 		var msg tg.MessageConfig
 		if !update.Message.IsCommand() { // ignore any non-command Messages
+			if update.Message.Text != "" {
+				value := gtranslate.Translate{
+					Text: update.Message.Text,
+					From: "en",
+					To:   "ru",
+				}
+				translated, err := gtranslate.Translator(value)
+				if err != nil {
+					panic(err)
+				}
 
-			value := gtranslate.Translate{
-				Text: update.Message.Text,
-				From: "en",
-				To:   "ru",
+				msg = tg.NewMessage(update.Message.Chat.ID, translated.Text)
+				// msg.ReplyMarkup = numericKeyboard
+				msg.ReplyToMessageID = update.Message.MessageID
 			}
-			translated, err := gtranslate.Translator(value)
-			if err != nil {
-				panic(err)
-			}
-
-			msg = tg.NewMessage(update.Message.Chat.ID, translated.Text)
-			// msg.ReplyMarkup = numericKeyboard
-			msg.ReplyToMessageID = update.Message.MessageID
-
 		} else {
 			msg = tg.NewMessage(update.Message.Chat.ID, "")
 
@@ -88,7 +88,7 @@ func Run() {
 			case "train":
 				msg.Text = "Training"
 			case "start":
-				msg.Text = "Ты куда звонишь?"
+				msg.Text = "Start"
 			default:
 				msg.Text = "I don't know that command"
 			}
